@@ -44,7 +44,7 @@ impl Name {
         let elem = match self.file_type {
             FileType::CharDevice => &Elem::CharDevice,
             FileType::Directory => &Elem::Dir,
-            FileType::SymLink => &Elem::SymLink,
+            FileType::SymLink { is_dir: _ } => &Elem::SymLink,
             FileType::ExecutableFile => &Elem::ExecutableFile,
             _ => &Elem::File,
         };

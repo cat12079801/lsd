@@ -10,7 +10,7 @@ pub enum FileType {
     Directory,
     File,
     ExecutableFile,
-    SymLink,
+    SymLink { is_dir: bool },
     Pipe,
     Socket,
     Special,
@@ -28,8 +28,10 @@ impl FileType {
             FileType::Directory
         } else if file_type.is_fifo() {
             FileType::Pipe
-        } else if file_type.is_symlink() {
-            FileType::SymLink
+        } else if file_type.is_symlink() && file_type.is_dir() {
+            FileType::SymLink { is_dir: true }
+        } else if file_type.is_symlink() && !file_type.is_dir() {
+            FileType::SymLink { is_dir: false }
         } else if file_type.is_char_device() {
             FileType::CharDevice
         } else if file_type.is_block_device() {
@@ -50,7 +52,7 @@ impl FileType {
             }
             FileType::Directory => colors.colorize(String::from("d"), &Elem::Dir),
             FileType::Pipe => colors.colorize(String::from("|"), &Elem::Pipe),
-            FileType::SymLink => colors.colorize(String::from("l"), &Elem::SymLink),
+            FileType::SymLink { is_dir: _ } => colors.colorize(String::from("l"), &Elem::SymLink),
             FileType::BlockDevice => colors.colorize(String::from("b"), &Elem::BlockDevice),
             FileType::CharDevice => colors.colorize(String::from("c"), &Elem::CharDevice),
             FileType::Socket => colors.colorize(String::from("s"), &Elem::Socket),

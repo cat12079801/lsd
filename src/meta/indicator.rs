@@ -13,7 +13,7 @@ impl From<FileType> for Indicator {
             FileType::ExecutableFile => "*",
             FileType::Pipe => "|",
             FileType::Socket => "=",
-            FileType::SymLink => "@",
+            FileType::SymLink { is_dir: _ } => "@",
             _ => "",
         };
 
@@ -68,7 +68,7 @@ mod test {
     }
 
     #[test]
-    fn test_symlink_indicator() {
+    fn test_symlink_file_indicator() {
         let flags = Flags {
             display_all: true,
             display_long: true,
@@ -84,7 +84,29 @@ mod test {
             icon: WhenFlag::Always,
         };
 
-        let file_type = Indicator::from(FileType::SymLink);
+        let file_type = Indicator::from(FileType::SymLink { is_dir: false });
+
+        assert_eq!("@", file_type.render(flags).to_string().as_str());
+    }
+
+    #[test]
+    fn test_symlink_directory_indicator() {
+        let flags = Flags {
+            display_all: true,
+            display_long: true,
+            display_online: true,
+            display_tree: true,
+            display_indicators: true,
+            recursive: true,
+            recursion_depth: usize::max_value(),
+            sort_by: SortFlag::Name,
+            sort_order: SortOrder::Default,
+            date: DateFlag::Relative,
+            color: WhenFlag::Always,
+            icon: WhenFlag::Always,
+        };
+
+        let file_type = Indicator::from(FileType::SymLink { is_dir: true });
 
         assert_eq!("@", file_type.render(flags).to_string().as_str());
     }
