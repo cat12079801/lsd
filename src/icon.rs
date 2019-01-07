@@ -41,6 +41,14 @@ impl Icons {
             res += ICON_SPACE;
             return res;
         }
+        let a = FileType::SymLink { is_dir: true };
+        //println!("{:?}", a);
+        //println!("{:?}", name.file_type());
+        if name.file_type() == a {
+            res += "\u{f115}"; // 
+            res += ICON_SPACE;
+            return res;
+        }
 
         // Check the known names.
         if let Some(icon) = self.icons_by_name.get(name.name().as_str()) {

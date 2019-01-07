@@ -20,6 +20,9 @@ impl FileType {
     pub fn new(meta: &Metadata, permissions: &Permissions) -> Self {
         let file_type = meta.file_type();
 
+        println!("is_dir: {:?}", file_type.is_dir());
+        println!("is_file: {:?}", file_type.is_file());
+        println!("is_symlink: {:?}", file_type.is_symlink());
         if file_type.is_file() && permissions.is_executable() {
             FileType::ExecutableFile
         } else if file_type.is_file() && !permissions.is_executable() {
@@ -28,9 +31,10 @@ impl FileType {
             FileType::Directory
         } else if file_type.is_fifo() {
             FileType::Pipe
-        } else if file_type.is_symlink() && file_type.is_dir() {
-            FileType::SymLink { is_dir: true }
-        } else if file_type.is_symlink() && !file_type.is_dir() {
+        } else if file_type.is_symlink() {
+            //println!("file_type: {:?}", file_type);
+            println!("meta: {:?}", meta.is_dir());
+            println!("filetype: {:?}", file_type.is_dir());
             FileType::SymLink { is_dir: false }
         } else if file_type.is_char_device() {
             FileType::CharDevice

@@ -35,23 +35,49 @@ pub struct Meta {
 
 impl Meta {
     pub fn from_path(path: &PathBuf) -> Option<Self> {
+        let a = 1;
+        let m = if read_link(path).is_ok() {
+            let metadata = path
+                .symlink_metadata()
+                .expect("failed to retrieve symlink metadata");
+            (metadata, true)
+        } else {
+            let metadata = path
+                .symlink_metadata()
+                .expect("failed to retrieve symlink metadata");
+            (metadata, false)
+        };
         let metadata = if read_link(path).is_ok() {
             // If the file is a link, retrieve the metadata without following
             // the link.
-            path.symlink_metadata()
-                .expect("failed to retrieve symlink metadata")
+            let metadata = path
+                .symlink_metadata()
+                .expect("failed to retrieve symlink metadata");
+            let is_dir: bool = match path.metadata() {
+                Ok(res) => res.file_type().is_dir(),
+                Err(err) => {
+                    println!("cannot access '{}': {}", path.display(), err);
+                    return None;
+                }
+            };
+            (metadata, is_dir)
         } else {
             match path.metadata() {
-                Ok(res) => res,
+                //Ok(res) => (res, None),
+                Ok(res) => (res, false),
                 Err(err) => {
                     println!("cannot access '{}': {}", path.display(), err);
                     return None;
                 }
             }
         };
+        println!("######################");
+        println!("{:?}", path);
+        //println!("{:?}", metadata);
+        //println!("{:?}", metadata.symlink_dir());
 
         let permissions = Permissions::from(&metadata);
-        let file_type = FileType::new(&metadata, &permissions);
+        let file_type = FileType::new(&metadata, &permissions); //Some( Self {sym: meta, nosym: meta} )
         let name = Name::new(&path, file_type);
 
         Some(Self {
